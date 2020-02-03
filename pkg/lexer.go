@@ -54,11 +54,12 @@ func (s *Scanner) scanKey() (tok Token, l string) {
 	for {
 		if ch := s.read(); ch == eof {
 			break
-		} else if isDelimiter(ch) {
-			if cnt == KEY_LENGTH {
-				s.unread()
-				break
-			}
+		} else if isDelimiter(ch) && cnt == KEY_LENGTH {
+			s.unread()
+			break
+		} else if isNewLine(ch) {
+			s.unread()
+			break
 		} else {
 			buf.WriteRune(ch)
 		}
@@ -66,6 +67,9 @@ func (s *Scanner) scanKey() (tok Token, l string) {
 	}
 
 	strTrim := strings.TrimSpace(buf.String())
+	if cnt < KEY_LENGTH {
+		return ILLEGAL, strTrim
+	}
 	return KEY, strTrim
 }
 
@@ -104,5 +108,5 @@ func (s *Scanner) Scan() (tok Token, l string) {
 	case '\n':
 		return NEWLINE, string(ch)
 	}
-	return ILLEGAL, string(ch)
+	return ILLEGAL, strings.TrimSpace(string(ch))
 }

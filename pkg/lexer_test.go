@@ -15,10 +15,11 @@ func TestLexingLines(t *testing.T) {
 		for _, ti := range desired_out {
 			token, literal := s.Scan()
 			if token != ti.Type {
-				t.Error("Expected ", ti.Type, " but got ", token, " with value ", literal)
-			}
-			if literal != ti.Literal {
-				t.Error("Expected ", ti.Literal, " but got ", literal, " with type ", token)
+				t.Error("Token mismatch")
+				t.Error("Expected token ", ti.Type, " but got ", token, " with literal value ", literal)
+			} else if literal != ti.Literal {
+				t.Error("Literal mismatch")
+				t.Error("Expected literal ", ti.Literal, " but got ", literal, " with token type", token)
 			}
 
 		}
@@ -68,6 +69,17 @@ func TestLexingLines(t *testing.T) {
 		correct_parsed = []TokenInstance{
 			TokenInstance{KEY, "Board FRU ID"},
 			TokenInstance{VAL, ""},
+			TokenInstance{NEWLINE, "\n"},
+		}
+
+		assertCorrectMessage(t, r, correct_parsed)
+
+	})
+	t.Run("Key has invalid key length", func(t *testing.T) {
+		var r io.Reader = strings.NewReader("A : BBB\n")
+		var correct_parsed []TokenInstance
+		correct_parsed = []TokenInstance{
+			TokenInstance{ILLEGAL, "A : BBB"},
 			TokenInstance{NEWLINE, "\n"},
 		}
 
