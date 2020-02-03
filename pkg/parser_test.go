@@ -2,13 +2,16 @@ package lexpar
 
 import (
 	"io"
+	"io/ioutil"
 	"strings"
 	"testing"
 )
 
 func TestParsing(t *testing.T) {
-	var r io.Reader = strings.NewReader("A:AA\n B:BB\n C:CC\n\n D:DD\n")
 
+	content, _ := ioutil.ReadFile("text.txt")
+	input := string(content)
+	var r io.Reader = strings.NewReader(input)
 	var p *Parser = NewParser(r)
 	p.Parse()
 }

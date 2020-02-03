@@ -40,6 +40,7 @@ func (p *Parser) parseNewline() bool {
 	if tok == NEWLINE {
 		return true
 	}
+	p.unscan()
 	return false
 }
 
@@ -49,10 +50,11 @@ func (p *Parser) parseEOF() bool {
 	if tok == EOF {
 		return true
 	}
+	p.unscan()
 	return false
 }
 
-func (p *Parser) parseVal() (*string, error) {
+func (p *Parser) parseVal() *string {
 	var val *string
 	tok, lit := p.scan()
 	if tok == VAL {
@@ -60,13 +62,12 @@ func (p *Parser) parseVal() (*string, error) {
 		val = &v
 	} else {
 		p.unscan()
-		return nil, nil
+		val = nil
 	}
-
-	return val, nil
+	return val
 }
 
-func (p *Parser) parseKey() (*string, error) {
+func (p *Parser) parseKey() *string {
 	var key *string
 	tok, lit := p.scan()
 	if tok == KEY {
@@ -74,41 +75,39 @@ func (p *Parser) parseKey() (*string, error) {
 		key = &k
 	} else {
 		p.unscan()
-		return nil, nil
+		key = nil
 	}
-
-	return key, nil
+	return key
 }
 
 func (p *Parser) Parse() error {
 	//	var r R = make(R)
 
 	for {
-		k, err := p.parseKey()
-		if err != nil {
-			return err
-		}
 
-		v, err := p.parseVal()
-		if err != nil {
-			return err
-		}
+		/*
+			if p.parseEOF() {
+				fmt.Println("END")
+				return nil
+			}
+		*/
 
-		//		fmt.Printf("%s : %s\n", *k, *v)
-		if p.parseNewline() && k != nil {
-			fmt.Printf("%s : %s", *k, *v)
-		} else {
-			fmt.Println("Starting new section")
-		}
+		k := p.parseKey()
 
-		if p.parseEOF() {
-			fmt.Println("END")
-			return nil
+		v := p.parseVal()
+
+		if k != nil && p.parseNewline() {
+			fmt.Printf("%s : %s\n", *k, *v)
+			continue
 		}
 
 		if k == nil && v == nil {
-			return fmt.Errorf("stopping runaway loop")
+			if p.parseNewline() {
+				fmt.Println("Starting new section")
+				continue
+			} else {
+				return nil
+			}
 		}
-
 	}
 }
