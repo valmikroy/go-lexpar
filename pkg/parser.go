@@ -1,7 +1,7 @@
 package lexpar
 
 import (
-	//	"encoding/json"
+	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -81,58 +81,28 @@ func (p *Parser) parseKey() *string {
 }
 
 func (p *Parser) Parse() {
-	//var fru Fru = make(Fru, 0)
-	//unit := make(map[string]string)
+	var fru Fru = make(Fru, 0)
+	unit := make(map[string]string)
 	for {
 
 		k := p.parseKey()
-		//fmt.Println(k)
 
 		v := p.parseVal()
-		//fmt.Println(*v)
 
 		p.parseNewline()
-
-		/*
-			if p.parseEOF() {
-				break
-			}
-		*/
 
 		pos := p.carriageReturn()
 
 		if pos == 0 {
 			break
 		} else if pos == 3 {
-			fmt.Println("XXXXXXXXXXXXXXXXXXXXXX")
+			fru = append(fru, unit)
+			unit = make(map[string]string)
 		} else {
-			fmt.Printf("%s : %s\n", *k, *v)
+			unit[*k] = *v
 		}
 
-		/*
-			if k != nil && p.parseNewline() {
-				fmt.Printf("%s : %s\n", *k, *v)
-				unit[*k] = *v
-				p.carriageReturn()
-				continue
-			}
-
-			if k == nil && v == nil {
-				if p.parseNewline() {
-
-					fmt.Println("XXXXXXXXXXXXXXXXXXXXXX")
-					fru = append(fru, unit)
-					//j, _ := json.Marshal(unit)
-					//fmt.Println(string(j))
-					unit = make(map[string]string)
-					continue
-				} else {
-					break
-				}
-			}
-		*/
 	}
-	//fmt.Printf("%v", fru)
-	//j, _ := json.Marshal(fru)
-	//fmt.Println(string(j))
+	j, _ := json.Marshal(fru)
+	fmt.Println(string(j))
 }

@@ -39,6 +39,7 @@ func (s *Scanner) scanNewline() (tok Token, l string) {
 			s.pos++
 			buf.WriteRune(ch)
 		} else {
+			s.unread()
 			break
 		}
 
