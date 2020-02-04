@@ -92,6 +92,7 @@ func (p *Parser) parseKey() *string {
 func (p *Parser) Parse() {
 	//	var r R = make(R)
 
+	unit := make(map[string]string)
 	for {
 
 		err := p.parseILLEGAL()
@@ -105,13 +106,16 @@ func (p *Parser) Parse() {
 		v := p.parseVal()
 
 		if k != nil && p.parseNewline() {
-			fmt.Printf("%s : %s\n", *k, *v)
+			//fmt.Printf("%s : %s\n", *k, *v)
+			unit[*k] = *v
 			continue
 		}
 
 		if k == nil && v == nil {
 			if p.parseNewline() {
 				fmt.Println("Starting new section")
+				fmt.Printf("%v", unit)
+				unit = make(map[string]string)
 				continue
 			} else {
 				break
