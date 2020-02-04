@@ -1,6 +1,7 @@
 package lexpar
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 )
@@ -114,7 +115,9 @@ func (p *Parser) Parse() {
 		if k == nil && v == nil {
 			if p.parseNewline() {
 				fmt.Println("Starting new section")
-				fmt.Printf("%v", unit)
+				//fmt.Printf("%v", unit)
+				j, _ := json.Marshal(unit)
+				fmt.Println(string(j))
 				unit = make(map[string]string)
 				continue
 			} else {
