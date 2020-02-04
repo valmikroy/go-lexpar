@@ -93,13 +93,15 @@ func (p *Parser) Parse() {
 
 		pos := p.carriageReturn()
 
+		if k != nil && v != nil {
+			unit[*k] = *v
+		}
+
 		if pos == 0 {
 			break
 		} else if pos == 3 {
 			fru = append(fru, unit)
 			unit = make(map[string]string)
-		} else {
-			unit[*k] = *v
 		}
 
 	}
