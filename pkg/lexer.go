@@ -8,12 +8,14 @@ import (
 )
 
 type Scanner struct {
-	r *bufio.Reader
+	r   *bufio.Reader
+	pos int
 }
 
 func NewScanner(r io.Reader) *Scanner {
 	return &Scanner{
-		r: bufio.NewReader(r),
+		r:   bufio.NewReader(r),
+		pos: 0,
 	}
 }
 
@@ -27,35 +29,33 @@ func (s *Scanner) read() rune {
 
 func (s *Scanner) unread() { _ = s.r.UnreadRune() }
 
-func (s *Scanner) scanWhiteSpace() (tok Token, l string) {
+func (s *Scanner) scanNewline() (tok Token, l string) {
 
 	var buf bytes.Buffer
-	buf.WriteRune(s.read())
 
 	for {
-		if ch := s.read(); ch == eof {
-			break
-		} else if !isWhitespace(ch) {
-			s.unread()
-			break
-		} else {
+
+		if ch := s.read(); isNewLine(ch) {
+			s.pos++
 			buf.WriteRune(ch)
+		} else {
+			break
 		}
+
 	}
 
-	return WS, buf.String()
+	return NEWLINE, "\n"
 }
 
 func (s *Scanner) scanKey() (tok Token, l string) {
 
 	var buf bytes.Buffer
 	buf.WriteRune(s.read())
-	var cnt int = 1
 
 	for {
 		if ch := s.read(); ch == eof {
-			break
-		} else if isDelimiter(ch) && cnt == KEY_LENGTH {
+			return EOF, ""
+		} else if isDelimiter(ch) {
 			s.unread()
 			break
 		} else if isNewLine(ch) {
@@ -64,13 +64,10 @@ func (s *Scanner) scanKey() (tok Token, l string) {
 		} else {
 			buf.WriteRune(ch)
 		}
-		cnt++
 	}
 
+	s.pos++
 	strTrim := strings.TrimSpace(buf.String())
-	if cnt < KEY_LENGTH {
-		return ILLEGAL, strTrim
-	}
 	return KEY, strTrim
 }
 
@@ -89,6 +86,7 @@ func (s *Scanner) scanVal() (tok Token, l string) {
 		}
 	}
 
+	s.pos++
 	strTrim := strings.TrimSpace(buf.String())
 	return VAL, strTrim
 }
@@ -96,18 +94,18 @@ func (s *Scanner) scanVal() (tok Token, l string) {
 func (s *Scanner) Scan() (tok Token, l string) {
 	ch := s.read()
 
-	if isDelimiter(ch) {
-		return s.scanVal()
-	} else if !isNewLine(ch) {
-		s.unread()
-		return s.scanKey()
+	if ch == eof && s.pos >= 3 {
+		return EOF, ""
 	}
 
-	switch ch {
-	case eof:
-		return EOF, ""
-	case '\n':
-		return NEWLINE, string(ch)
+	if s.pos == 0 {
+		s.unread()
+		return s.scanKey()
+	} else if s.pos == 1 {
+		return s.scanVal()
+	} else if s.pos >= 2 {
+		return s.scanNewline()
 	}
-	return ILLEGAL, strings.TrimSpace(string(ch))
+	return ILLEGAL, ""
+
 }

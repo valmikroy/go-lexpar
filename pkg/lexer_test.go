@@ -26,6 +26,7 @@ func TestLexingLines(t *testing.T) {
 	}
 
 	t.Run("First line starting with char", func(t *testing.T) {
+		t.Logf("Parsing string  'FRU Device Description : Custom device (ID 00)'")
 		var r io.Reader = strings.NewReader("FRU Device Description : Custom device (ID 00)\n")
 		var correct_parsed []TokenInstance
 		correct_parsed = []TokenInstance{
@@ -37,8 +38,8 @@ func TestLexingLines(t *testing.T) {
 		assertCorrectMessage(t, r, correct_parsed)
 
 	})
-
 	t.Run("Line starting with space", func(t *testing.T) {
+		t.Logf("Parsing string ' Board Serial          : QZZZ1213142424'")
 		var r io.Reader = strings.NewReader(" Board Serial          : QZZZ1213142424\n")
 		var correct_parsed []TokenInstance
 		correct_parsed = []TokenInstance{
@@ -52,6 +53,7 @@ func TestLexingLines(t *testing.T) {
 	})
 
 	t.Run("Value has delimiter character", func(t *testing.T) {
+		t.Logf("Parsing string ' Board Mfg Date        : Sun May 10 21:41:00 2010'")
 		var r io.Reader = strings.NewReader(" Board Mfg Date        : Sun May 10 21:41:00 2010\n")
 		var correct_parsed []TokenInstance
 		correct_parsed = []TokenInstance{
@@ -64,6 +66,7 @@ func TestLexingLines(t *testing.T) {
 
 	})
 	t.Run("Key has no value", func(t *testing.T) {
+		t.Logf("Parsing string ' Board FRU ID          :'")
 		var r io.Reader = strings.NewReader(" Board FRU ID          :\n")
 		var correct_parsed []TokenInstance
 		correct_parsed = []TokenInstance{
@@ -79,11 +82,37 @@ func TestLexingLines(t *testing.T) {
 		var r io.Reader = strings.NewReader("A : BBB\n")
 		var correct_parsed []TokenInstance
 		correct_parsed = []TokenInstance{
-			TokenInstance{ILLEGAL, "A : BBB"},
+			TokenInstance{KEY, "A"},
+			TokenInstance{VAL, "BBB"},
 			TokenInstance{NEWLINE, "\n"},
 		}
 
 		assertCorrectMessage(t, r, correct_parsed)
 
 	})
+	t.Run("With no value field", func(t *testing.T) {
+		var r io.Reader = strings.NewReader("ABCD\n")
+		var correct_parsed []TokenInstance
+		correct_parsed = []TokenInstance{
+			TokenInstance{KEY, "ABCD"},
+			TokenInstance{VAL, ""},
+			TokenInstance{NEWLINE, "\n"},
+		}
+
+		assertCorrectMessage(t, r, correct_parsed)
+
+	})
+	/*
+		t.Run("With no value for both key and value", func(t *testing.T) {
+			var r io.Reader = strings.NewReader("\n")
+			var correct_parsed []TokenInstance
+			correct_parsed = []TokenInstance{
+				TokenInstance{KEY, ""},
+				TokenInstance{VAL, ""},
+				TokenInstance{NEWLINE, "\n"},
+			}
+
+			assertCorrectMessage(t, r, correct_parsed)
+
+		}) */
 }
