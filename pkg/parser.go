@@ -105,6 +105,11 @@ func (p *Parser) Parse() {
 		}
 
 	}
+
+	if len(unit) > 0 && len(fru) == 0 {
+		fru = append(fru, unit)
+	}
+
 	j, _ := json.Marshal(fru)
 	fmt.Println(string(j))
 }
