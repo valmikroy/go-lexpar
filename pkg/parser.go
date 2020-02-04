@@ -44,6 +44,15 @@ func (p *Parser) parseNewline() bool {
 	return false
 }
 
+func (p *Parser) parseILLEGAL() error {
+
+	tok, l := p.scan()
+	if tok == ILLEGAL {
+		return fmt.Errorf("Illegal token '%s'\n", l)
+	}
+	return nil
+}
+
 func (p *Parser) parseEOF() bool {
 
 	tok, _ := p.scan()
@@ -80,17 +89,16 @@ func (p *Parser) parseKey() *string {
 	return key
 }
 
-func (p *Parser) Parse() error {
+func (p *Parser) Parse() {
 	//	var r R = make(R)
 
 	for {
 
-		/*
-			if p.parseEOF() {
-				fmt.Println("END")
-				return nil
-			}
-		*/
+		err := p.parseILLEGAL()
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
 
 		k := p.parseKey()
 
@@ -106,7 +114,7 @@ func (p *Parser) Parse() error {
 				fmt.Println("Starting new section")
 				continue
 			} else {
-				return nil
+				break
 			}
 		}
 	}

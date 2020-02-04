@@ -45,6 +45,7 @@ func (s *Scanner) scanWhiteSpace() (tok Token, l string) {
 
 	return WS, buf.String()
 }
+
 func (s *Scanner) scanKey() (tok Token, l string) {
 
 	var buf bytes.Buffer
