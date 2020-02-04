@@ -15,6 +15,10 @@ type Parser struct {
 	}
 }
 
+type Unit map[string]string
+
+type Fru []Unit
+
 func NewParser(r io.Reader) *Parser {
 	return &Parser{s: NewScanner(r)}
 }
@@ -93,6 +97,7 @@ func (p *Parser) parseKey() *string {
 func (p *Parser) Parse() {
 	//	var r R = make(R)
 
+	var fru Fru = make(Fru, 0)
 	unit := make(map[string]string)
 	for {
 
@@ -115,9 +120,7 @@ func (p *Parser) Parse() {
 		if k == nil && v == nil {
 			if p.parseNewline() {
 				fmt.Println("Starting new section")
-				//fmt.Printf("%v", unit)
-				j, _ := json.Marshal(unit)
-				fmt.Println(string(j))
+				fru = append(fru, unit)
 				unit = make(map[string]string)
 				continue
 			} else {
@@ -125,4 +128,8 @@ func (p *Parser) Parse() {
 			}
 		}
 	}
+
+	//fmt.Printf("%v", fru)
+	j, _ := json.Marshal(fru)
+	fmt.Println(string(j))
 }
